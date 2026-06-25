@@ -1,5 +1,5 @@
 module alu (
-	input logic [2:0] alu_control,
+	input logic [2:0] alu_control, // Determines ALU's operation
 	input logic [31:0] src1,
 	input logic [31:0] src2,
 

@@ -1,18 +1,18 @@
 module memory #(
 	parameter WORDS = 64,
-	parameter mem_init = ""
+	parameter mem_init = "" // Load data from file to memory block of this module
 ) (
 	input logic clk,
 	input logic [31:0] address,
-	input logic [31:0] write_data,
+	input logic [31:0] write_data, // Data to write at certain address when write_enable is high
 	input logic write_enable,
-	input logic rst_n,
+	input logic rst_n, // When rst_n = 0, erase the entire memory block
 
 	output logic [31:0] read_data
 );
 
 	// This memory is byte addressed
-	// But have no support for mis-aligned write nor reads
+	// TODO(higanbana): Add support for mis-aligned r/w
 
 	reg [31:0] mem [0:WORDS-1]; // Memory array of words (32-bit)
 

@@ -1,6 +1,6 @@
 module signext (
 	input logic [24:0] raw_src,
-	input logic [1:0] imm_source,
+	input logic [1:0] imm_source, // Determine how to extend raw immediate value for different instruction types
 
 	output logic [31:0] immediate
 );
