@@ -57,7 +57,7 @@ async def cpu_insert_test(dut):
 
     ################
     # LOAD WORD TEST
-    # lw x18, 0x8(x0)
+    # lw x18 0x8(x0)
     ################
     print("\n\nTESTING LW\n\n")
 
@@ -74,7 +74,7 @@ async def cpu_insert_test(dut):
 
     ###################
     # STORE WORD TEST
-    # lw x18, 0x8(x0)
+    # lw x18 0x8(x0)
     ###################
     print("\n\nTESTING SW\n\n")
     test_address = int(0xC / 4) # mem is byte address but is made out of words in the eyes of the softwa
@@ -85,3 +85,17 @@ async def cpu_insert_test(dut):
     await RisingEdge(dut.clk)
     # Check the value of mem[0xC]
     assert binary_to_hex(dut.data_memory.mem[test_address].value) == "DEADBEEF"
+
+    ###################
+    # ADD TEST
+    # lw x19 0x10(x0) (this memory spot contains 0x00000AAA)
+    # add x20 x18 x19
+    ###################
+    print("\n\nTESTING ADD\n\n")
+
+    # Expected result of x18 + x19
+    expected_result = (0xDEADBEEF + 0x00000AAA) & 0xFFFFFFFF
+    await RisingEdge(dut.clk) # lw x19 0x10(x0)
+    assert binary_to_hex(dut.regfile.registers[19].value) == "00000AAA"
+    await RisingEdge(dut.clk) # add x20 x18 x19
+    assert binary_to_hex(dut.regfile.registers[20].value) == hex(expected_result)[2:].upper()

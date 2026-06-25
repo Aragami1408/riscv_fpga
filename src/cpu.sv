@@ -51,17 +51,23 @@ module cpu (
 	wire [1:0] imm_source;
 	wire mem_write;
 	wire reg_write;
+	// out muxes wires
+	wire alu_source;
+	wire write_back_source;
 
 	control control_unit(
 		.op(op),
 		.func3(f3),
-		.func7(7'b0),
+		.func7(7'b0), // TODO(higanbana): Future instructions would need f7
 		.alu_zero(alu_zero),
 
 		.alu_control(alu_control),
 		.imm_source(imm_source),
 		.mem_write(mem_write),
-		.reg_write(reg_write)
+		.reg_write(reg_write),
+		// muxes out
+		.alu_source(alu_source),
+		.write_back_source(write_back_source)
 	);
 
 	// REGFILE
@@ -76,8 +82,11 @@ module cpu (
 	wire [31:0] read_reg2;
 
 	logic [31:0] write_back_data;
-	always_comb begin : wbSelect
-		write_back_data = mem_read;
+	always_comb begin : write_back_source_select
+		case (write_back_source)
+			1'b1: write_back_data = mem_read;
+			default: write_back_data = alu_result;
+		endcase
 	end
 
 	regfile regfile(
@@ -112,8 +121,11 @@ module cpu (
 	wire [31:0] alu_result;
 	logic [31:0] alu_src2;
 
-	always_comb begin : srcBSelect
-		alu_src2 = immediate;
+	always_comb begin : alu_source_select
+		case (alu_source)
+			1'b1: alu_src2 = immediate;
+			default: alu_src2 = read_reg2;
+		endcase
 	end
 
 	alu alu_inst(
@@ -141,6 +153,5 @@ module cpu (
 		// Memory outputs
 		.read_data(mem_read)
 	);
-
 
 endmodule

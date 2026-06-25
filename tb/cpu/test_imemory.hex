@@ -1,5 +1,9 @@
-00802903 // lw x18, 0x8(x0)
-01202623 // sw x18, 0xC(x0)
+00802903 // LW TEST START:  lw x18 0x8(x0)
+01202623 // SW TEST START:  sw x18 0xC(x0)
+01002983 // ADD TEST START: lw x19 0x10(x0)
+01390a33 //                 add x20 x18 x19
+00000013 // nop
+00000013 // nop
 00000013 // nop
 00000013 // nop
 00000013 // nop
