@@ -134,8 +134,8 @@ module cpu (
 		// Memory inputs
 		.clk(clk),
 		.address(alu_result),
-		.write_data(32'b0),
-		.write_enable(1'b0),
+		.write_data(read_reg2),
+		.write_enable(mem_write),
 		.rst_n(1'b1),
 
 		// Memory outputs
