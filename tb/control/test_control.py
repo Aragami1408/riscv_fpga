@@ -26,6 +26,7 @@ async def lw_control_test(dut):
     # Datapath mux sources
     assert dut.alu_source.value == "1"
     assert dut.write_back_source.value == "1"
+    assert dut.pc_source.value == "0"
 
 @cocotb.test()
 async def sw_control_test(dut):
@@ -39,6 +40,7 @@ async def sw_control_test(dut):
     assert dut.reg_write.value == "0"
     # Datapath mux sources
     assert dut.alu_source.value == "1"
+    assert dut.pc_source.value == "0"
 
 @cocotb.test()
 async def add_control_test(dut):
@@ -53,6 +55,7 @@ async def add_control_test(dut):
     # Datapath mux sources
     assert dut.alu_source.value == "0"
     assert dut.write_back_source.value == "0"
+    assert dut.pc_source.value == "0"
 
 @cocotb.test()
 async def and_control_test(dut):
@@ -67,6 +70,7 @@ async def and_control_test(dut):
     # Datapath mux sources
     assert dut.alu_source.value == "0"
     assert dut.write_back_source.value == "0"
+    assert dut.pc_source.value == "0"
 
 @cocotb.test()
 async def or_control_test(dut):
@@ -82,3 +86,28 @@ async def or_control_test(dut):
     # Datapath mux sources
     assert dut.alu_source.value == "0"
     assert dut.write_back_source.value == "0"
+    assert dut.pc_source.value == "0"
+
+@cocotb.test()
+async def beq_control_test(dut):
+    await set_unknown(dut)
+    # TEST CONTROL SIGNALS FOR BEQ
+    await Timer(10, unit="ns")
+    dut.op.value = 0b1100011
+    dut.func3.value = 0b000
+    dut.alu_zero.value = 0b0
+    await Timer(1, unit="ns")
+
+    assert dut.imm_source.value == "10"
+    assert dut.alu_control.value == "001"
+    assert dut.mem_write.value == "0"
+    assert dut.reg_write.value == "0"
+    assert dut.alu_source.value == "0"
+    assert dut.branch.value == "1"
+    assert dut.pc_source.value == "0"
+
+    # Test if branching condition is met
+    await Timer(3, unit="ns")
+    dut.alu_zero.value = 0b1
+    await Timer(1, unit="ns")
+    assert dut.pc_source.value == "1"

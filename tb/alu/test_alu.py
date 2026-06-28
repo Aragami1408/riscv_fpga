@@ -2,6 +2,12 @@ import cocotb
 from cocotb.triggers import Timer
 import random
 
+# Convert binary string to hexadecimal
+def binary_to_hex(bin_str):
+    hex_str = hex(int(str(bin_str), 2))[2:]
+    hex_str = hex_str.zfill(8)
+    return hex_str.upper()
+
 @cocotb.test()
 async def add_test(dut):
     await Timer(1, unit="ns")
@@ -68,3 +74,18 @@ async def or_test(dut):
         # Await 1 ns for the infos to propagate
         await Timer(1, unit="ns")
         assert int(dut.alu_result.value) == expected
+
+@cocotb.test()
+async def sub_test(dut):
+    await Timer(1, unit="ns")
+    dut.alu_control.value = 0b001
+    for _ in range(1000):
+        src1 = random.randint(0, 0xFFFFFFFF)
+        src2 = random.randint(0, 0xFFFFFFFF)
+        dut.src1.value = src1
+        dut.src2.value = src2
+        expected = (src1 - src2) & 0xFFFFFFFF
+        await Timer(1, unit="ns")
+        assert str(dut.alu_result.value) == bin(expected)[2:].zfill(32)
+        assert binary_to_hex(dut.alu_result.value) == hex(expected)[2:].zfill(8).upper()
+        assert int(str(dut.alu_result.value),2) == expected

@@ -1,13 +1,19 @@
-00802903 // LW TEST START:  lw x18 0x8(x0)  | x18 <- DEADBEEF
-01202623 // SW TEST START:  sw x18 0xC(x0)  | 0xC <- DEADBEEF
-01002983 // ADD TEST START: lw x19 0x10(x0) | x19 <- 00000AAA
-01390a33 //                 add x20 x18 x19 | x20 <- DEADC999
-01497ab3 // AND TEST START: and x21 x18 x20 | x21 <- DEAD8889
-01402283 // OR TEST START:  lw x5 0x14(x0)  | x5  <- 125F552D
-01802303 //                 lw x6 0x18(x0)  | x6  <- 7F4FD46A
-0062e3b3 //                 or x7 x5 x6     | x7  <- 7F5FD56F
-00000013 // nop
-00000013 // nop
-00000013 // nop
-00000013 // nop
-00000013 // nop
+00802903 // LW TEST START:   lw x18 0x8(x0)   | x18 <- DEADBEEF
+01202623 // SW TEST START:   sw x18 0xC(x0)   | 0xC <- DEADBEEF
+01002983 // ADD TEST START:  lw x19 0x10(x0)  | x19 <- 00000AAA
+01390a33 //                  add x20 x18 x19  | x20 <- DEADC999
+01497ab3 // AND TEST START:  and x21 x18 x20  | x21 <- DEAD8889
+01402283 // OR TEST START:   lw x5 0x14(x0)   | x5  <- 125F552D
+01802303 //                  lw x6 0x18(x0)   | x6  <- 7F4FD46A
+0062e3b3 //                  or x7 x5 x6      | x7  <- 7F5FD56F
+00730663 // BEQ TEST START : beq x6 x7 0xC    | #1 SHOULD NOT BRANCH
+00802B03 //                  lw x22 0x8(x0)   | x22 <= DEADBEEF
+01690863 //                  beq x18 x22 0x10 | #2 SHOULD BRANCH (+ offset)
+00000013 //                  nop              | NEVER EXECUTED
+00000013 //                  nop              | NEVER EXECUTED
+00000663 //                  beq x0 x0 0xC    | #4 SHOULD BRANCH(avoid loop)
+00002B03 //                  lw x22 0x0(x0)   | x22 <= AEAEAEAE
+FF6B0CE3 //                  beq x22 x22 -0x8 | #3 SHOULD BRANCH (-offset)
+00000013 //                  nop              | FINAL NOP
+00000013 // NOP
+00000013 // NOP
