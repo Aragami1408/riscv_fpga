@@ -159,7 +159,54 @@ async def cpu_instr_test(dut):
     await RisingEdge(dut.clk) # beq x0 x0 0xC (BRANCHED)
     assert binary_to_hex(dut.instruction.value) == "00000013"
 
+    ###################
+    # JAL TEST
+    # jal x1 0xC       | #1 jump @PC+0xC
+    # nop              | NEVER EXECUTED
+    # jal x1 0xC       | #2 jump @PC-0x4
+    # jal x1 0x-4      | #2 jump @PC-0x4
+    # nop              | NEVER EXECUTED
+    # lw x7 0xC(x0)    | x7 <= DEADBEEF
+    ###################
+    print("\n\nTESTING JAL\n\n")
 
+    # Check test's init state
+    await RisingEdge(dut.clk)
+    assert binary_to_hex(dut.instruction.value) == "00C000EF"
+    assert binary_to_hex(dut.pc.value) == "00000044"
 
+    await RisingEdge(dut.clk)
+    assert binary_to_hex(dut.instruction.value) == "FFDFF0EF"
+    assert binary_to_hex(dut.pc.value) == "00000050"
+    assert binary_to_hex(dut.regfile.registers[1].value) == "00000048"
 
+    await RisingEdge(dut.clk)
+    assert binary_to_hex(dut.instruction.value) == "00C000EF"
+    assert binary_to_hex(dut.pc.value) == "0000004C"
+    assert binary_to_hex(dut.regfile.registers[1].value) == "00000054"
 
+    await RisingEdge(dut.clk)
+    assert binary_to_hex(dut.instruction.value) == "00C02383"
+    assert binary_to_hex(dut.pc.value) == "00000058"
+    assert binary_to_hex(dut.regfile.registers[1].value) == "00000050"
+
+    await RisingEdge(dut.clk)
+    assert binary_to_hex(dut.regfile.registers[7].value) == "DEADBEEF"
+
+    ###################
+    # ADDI TEST
+    # addi x26 x7 0x1AB | x26 <= DEADC09A
+    # addi x25 x6 0xF21 | x25 <= DEADBE10
+    ###################
+    print("\n\nTESTING ADDI\n\n")
+    assert binary_to_hex(dut.instruction.value) == "1AB38D13"
+    assert binary_to_hex(dut.regfile.registers[7].value) == "DEADBEEF"
+
+    await RisingEdge(dut.clk)
+    assert binary_to_hex(dut.instruction.value) == "F2130C93"
+    assert binary_to_hex(dut.regfile.registers[26].value) == "DEADC09A"
+
+    await RisingEdge(dut.clk)
+    assert binary_to_hex(dut.instruction.value) == "00000013"
+    assert binary_to_hex(dut.regfile.registers[6].value) == "7F4FD46A"
+    assert binary_to_hex(dut.regfile.registers[25].value) == "7F4FD38B"

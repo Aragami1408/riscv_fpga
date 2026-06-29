@@ -25,7 +25,7 @@ async def lw_control_test(dut):
     assert dut.reg_write.value == "1"
     # Datapath mux sources
     assert dut.alu_source.value == "1"
-    assert dut.write_back_source.value == "1"
+    assert dut.write_back_source.value == "01"
     assert dut.pc_source.value == "0"
 
 @cocotb.test()
@@ -54,7 +54,7 @@ async def add_control_test(dut):
     assert dut.reg_write.value == "1"
     # Datapath mux sources
     assert dut.alu_source.value == "0"
-    assert dut.write_back_source.value == "0"
+    assert dut.write_back_source.value == "00"
     assert dut.pc_source.value == "0"
 
 @cocotb.test()
@@ -69,7 +69,7 @@ async def and_control_test(dut):
     assert dut.reg_write.value == "1"
     # Datapath mux sources
     assert dut.alu_source.value == "0"
-    assert dut.write_back_source.value == "0"
+    assert dut.write_back_source.value == "00"
     assert dut.pc_source.value == "0"
 
 @cocotb.test()
@@ -85,7 +85,7 @@ async def or_control_test(dut):
     assert dut.reg_write.value == "1"
     # Datapath mux sources
     assert dut.alu_source.value == "0"
-    assert dut.write_back_source.value == "0"
+    assert dut.write_back_source.value == "00"
     assert dut.pc_source.value == "0"
 
 @cocotb.test()
@@ -111,3 +111,37 @@ async def beq_control_test(dut):
     dut.alu_zero.value = 0b1
     await Timer(1, unit="ns")
     assert dut.pc_source.value == "1"
+
+@cocotb.test()
+async def jal_control_test(dut):
+    await set_unknown(dut)
+    # TEST CONTROL SIGNALS FOR JAL
+    await Timer(10, unit="ns")
+    dut.op.value = 0b1101111
+    await Timer(1, unit="ns")
+
+    assert dut.imm_source.value == "11"
+    assert dut.mem_write.value == "0"
+    assert dut.reg_write.value == "1"
+    assert dut.branch.value == "0"
+    assert dut.jump.value == "1"
+    assert dut.pc_source.value == "1"
+    assert dut.write_back_source.value == "10"
+
+@cocotb.test()
+async def addi_control_test(dut):
+    await set_unknown(dut)
+    # TEST CONTROL SIGNALS FOR ADDI
+    await Timer(10, unit="ns")
+    dut.op.value = 0b0010011 # I-type
+    dut.func3.value = 0b000 # addi
+    await Timer(1, unit="ns")
+
+    # Logic block controls
+    assert dut.alu_control.value == "000"
+    assert dut.imm_source.value == "00"
+    assert dut.mem_write.value == "0"
+    assert dut.reg_write.value == "1"
+    assert dut.alu_source.value == "1"
+    assert dut.write_back_source.value == "00"
+    assert dut.pc_source.value == "0"

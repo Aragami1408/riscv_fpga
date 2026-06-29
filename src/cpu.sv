@@ -4,11 +4,15 @@ module cpu (
 );
 
 	// -------------------- PROGRAM COUNTER --------------------
-	logic [31:0] pc, pc_next;
+	reg [31:0] pc;
+	logic [31:0] pc_next, pc_target, pc_plus_four;
 	logic pc_source; // from control unit
 
+	assign pc_target = pc + immediate;
+	assign pc_plus_four = pc + 32'd4;
+
 	always_comb begin : pc_select
-		pc_next = (pc_source) ? (pc + immediate) : (pc + 32'd4);
+		pc_next = (pc_source) ? pc_target : pc_plus_four;
 	end
 
 	always @(posedge clk) begin
@@ -53,8 +57,10 @@ module cpu (
 	wire [2:0] alu_control;
 	wire [1:0] imm_source;
 	wire mem_write, reg_write;
-	wire alu_source, write_back_source;
+	wire alu_source;
 	wire alu_zero;
+
+	wire [1:0] write_back_source;
 
 	control control_unit(
 		.op(op),
@@ -136,8 +142,13 @@ module cpu (
 	// -------------------- WRITE‑BACK MUX --------------------
 	logic [31:0] write_back_data;
 
-	always_comb begin
-		write_back_data = (write_back_source) ? mem_read : alu_result;
+	always_comb begin : write_back_source_select
+		case (write_back_source)
+			2'b00: write_back_data = alu_result;
+			2'b01: write_back_data = mem_read;
+			2'b10: write_back_data = pc_plus_four;
+			default: write_back_data = 32'b0;
+		endcase
 	end
 
 endmodule
