@@ -207,6 +207,22 @@ async def cpu_instr_test(dut):
     assert binary_to_hex(dut.regfile.registers[26].value) == "DEADC09A"
 
     await RisingEdge(dut.clk)
-    assert binary_to_hex(dut.instruction.value) == "00000013"
     assert binary_to_hex(dut.regfile.registers[6].value) == "7F4FD46A"
     assert binary_to_hex(dut.regfile.registers[25].value) == "7F4FD38B"
+
+    ###################
+    # AUIPC TEST (PC before is 0x64)
+    # auipc x5 0x1F1FA  | x5 <= 1F1FA064 (PC = 0x64)
+    ###################
+    print("\n\nTESTING AUIPC\n\n")
+    assert binary_to_hex(dut.instruction.value) == "1F1FA297"
+
+    await RisingEdge(dut.clk) # auipc x5 0x1F1FA
+    assert binary_to_hex(dut.regfile.registers[5].value) == "1F1FA064"
+
+    ###################
+    # LUI TEST
+    # lui x5 0x2F2FA    | x5 <= 2F2FA000
+    ###################
+
+
