@@ -7,7 +7,7 @@ module control(
 	// Taken from ALU's zero signal to do branching stuff
 	input logic alu_zero,
 
-	output logic [2:0] alu_control,       // Wires to ALU module
+	output logic [3:0] alu_control,       // Wires to ALU module
 	output logic [2:0] imm_source,        // Wires to Sign Extender module
 	output logic mem_write,               // Data memory write enable
 	output logic reg_write,               // Register file write enable
@@ -43,7 +43,6 @@ module control(
 			end
 			// I-type ALU
 			7'b0010011: begin
-				reg_write = 1'b1;
 				imm_source = 3'b000;
 				alu_source = 1'b1;
 				mem_write = 1'b0;
@@ -51,6 +50,16 @@ module control(
 				write_back_source = 2'b00;
 				branch = 1'b0;
 				jump = 1'b0;
+				
+				// Shift-left and shift-right func7 check
+				if (func3 == 3'b001) begin
+					reg_write = (func7 == 7'h0) ? 1'b1 : 1'b0;
+				end
+				else if (func3 == 3'b101) begin
+					reg_write = (func7 == 7'h0 | func7 == 7'h20) ? 1'b1 : 1'b0;
+				end else begin
+					reg_write = 1'b1;
+				end
 			end
 			// S-type (sw)
 			7'b0100011: begin
@@ -111,21 +120,24 @@ module control(
 	// -------------------- ALU DECODER --------------------
 	always_comb begin
 		case (alu_op)
-			2'b00: alu_control = 3'b000;                                // ADD (for lw/sw)
+			2'b00: alu_control = 4'b0000;                                // ADD (for lw/sw)
 			2'b10: begin                                                // R-type
 				case (func3)
-					3'b000: alu_control = 3'b000;
-					3'b111: alu_control = 3'b010;                       // AND
-					3'b110: alu_control = 3'b011;                       // OR
-					3'b010: alu_control = 3'b101;                       // SLTI
-					3'b011: alu_control = 3'b111;                       // SLTIU
-					default: alu_control = 3'b111;                      // Unsupported (will output 0)
+					3'b000: alu_control = 4'b0000;
+					3'b111: alu_control = 4'b0010;                       // AND
+					3'b110: alu_control = 4'b0011;                       // OR
+					3'b010: alu_control = 4'b0101;                       // SLT
+					3'b011: alu_control = 4'b0111;                       // SLTU
+					3'b100: alu_control = 4'b1000;                       // XOR
+					3'b001: alu_control = 4'b0100;                       // SLL
+					3'b101: alu_control = (func7 == 7'h20) ? 4'b1001 : 4'b0110;                       // SRL or SRA
+					default: alu_control = 4'b0111;                      // Unsupported (will output 0)
 				endcase
 			end
 			// BEQ
-			2'b01: alu_control = 3'b001;                                // SUB (for brnach comparison)
+			2'b01: alu_control = 4'b0001;                                // SUB (for brnach comparison)
 			// EVERYTHING ELSE
-			default: alu_control = 3'b111;
+			default: alu_control = 4'b1111;
 		endcase
 	end
 

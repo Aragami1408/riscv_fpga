@@ -258,3 +258,90 @@ async def cpu_instr_test(dut):
 
     await RisingEdge(dut.clk) # sltiu x22 x19 0x001
     assert binary_to_hex(dut.regfile.registers[22].value) == "00000000"
+
+    ###################
+    # XORI TEST
+    # xori x18 x19 0xAAA  | x18 <= 21524445 (because sign extend)
+    # xori x19 x18 0x000  | x19 <= 21524445
+    ###################
+    print("\n\nTESTING XORI\n\n")
+    assert binary_to_hex(dut.instruction.value) == "AAA94913"
+
+    await RisingEdge(dut.clk) # xori x18 x19 0xAAA
+    assert binary_to_hex(dut.regfile.registers[18].value) == "21524445"
+
+    await RisingEdge(dut.clk) # xori x19 x18 0x000
+    assert binary_to_hex(dut.regfile.registers[19].value) == binary_to_hex(dut.regfile.registers[18].value)
+
+    ###################
+    # ORI TEST
+    # ori x20 x19 0xAAA   | x20 <= FFFFFEEF
+    # ori x21 x20 0x000   | x21 <= FFFFFEEF
+    ###################
+    print("\n\nTESTING ORI\n\n")
+    assert binary_to_hex(dut.instruction.value) == "AAA9EA13"
+
+    await RisingEdge(dut.clk) # ori x20 x19 0xAAA
+    assert binary_to_hex(dut.regfile.registers[20].value) == "FFFFFEEF"
+    await RisingEdge(dut.clk) # ori x21 x20 0x000
+    assert binary_to_hex(dut.regfile.registers[21].value) == binary_to_hex(dut.regfile.registers[20].value)
+
+    ###################
+    # ANDI TEST
+    # andi x18 x20 0x7FF  | x18 <= 000006EF
+    # andi x19 x21 0xFFF  | x19 <= FFFFFEEF
+    # andi x20 x21 0x000  | x20 <= 00000000
+    ###################
+    print("\n\nTESTING ANDI\n\n")
+    assert binary_to_hex(dut.instruction.value) == "7FFA7913"
+
+    await RisingEdge(dut.clk) # andi x18 x20 0x7FF
+    assert binary_to_hex(dut.regfile.registers[18].value) == "000006EF"
+    await RisingEdge(dut.clk) # andi x19 x21 0xFFF
+    assert binary_to_hex(dut.regfile.registers[19].value) == binary_to_hex(dut.regfile.registers[21].value)
+    await RisingEdge(dut.clk) # andi x20 x21 0x000
+    assert binary_to_hex(dut.regfile.registers[20].value) == "00000000"
+
+    ###################
+    # SLLI TEST
+    # slli x19 x19 0x4    | x19 <= FFFFEEF0
+    # invalid op test     | NO CHANGE (wrong "F7" for SL)
+    ###################
+    print("\n\nTESTING SLLI\n\n")
+    assert binary_to_hex(dut.instruction.value) == "00499993"
+
+    await RisingEdge(dut.clk) # slli x19 x19 0x4
+    assert binary_to_hex(dut.regfile.registers[19].value) == "FFFFEEF0"
+
+    await RisingEdge(dut.clk) # same but wrong F7
+    assert binary_to_hex(dut.regfile.registers[19].value) == "FFFFEEF0" # x19 should not be changed
+
+    ###################
+    # SRLI TEST
+    # srli x20 x19 0x4    | x20 <= 0FFFFEEF
+    # invalid op test     | NO CHANGE (wrong "F7" for SR)
+    ###################
+    print("\n\nTESTING SRLI\n\n")
+    assert binary_to_hex(dut.instruction.value) == "0049DA13"
+
+    await RisingEdge(dut.clk) # srli x20 x19 0x4
+    assert binary_to_hex(dut.regfile.registers[20].value) == "0FFFFEEF"
+
+    await RisingEdge(dut.clk) # same but wrong F7
+    assert binary_to_hex(dut.regfile.registers[20].value) == "0FFFFEEF"
+
+    ###################
+    # SRAI TEST
+    # srai x21 x21 0x4    | x21 <= FFFFFFEE
+    # invalid op test     | NO CHANGE (wrong "F7" for SR)
+    ###################
+    print("\n\nTESTING SRAI\n\n")
+    assert binary_to_hex(dut.instruction.value) == "404ADA93"
+
+    await RisingEdge(dut.clk) # srai x21 x21 0x4
+    assert binary_to_hex(dut.regfile.registers[21].value) == "FFFFFFEE"
+
+    await RisingEdge(dut.clk) # same but wrong F7
+    assert binary_to_hex(dut.regfile.registers[21].value) == "FFFFFFEE"
+
+

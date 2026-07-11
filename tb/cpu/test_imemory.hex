@@ -29,6 +29,19 @@ FFF9AB93 // SLTI TEST START:  slti x23 x19 0xFFF  | x23 <= 00000000
 001BAB93 //                   slti x23 x23 0x001  | x23 <= 00000001
 FFF9BB13 // SLTIU TEST START: sltiu x22 x19 0xFFF | x22 <= 00000001
 0019BB13 //                   sltiu x22 x19 0x001 | x22 <= 00000000
+AAA94913 // XORI TEST START:  xori x18 x19 0xAAA  | x18 <= 21524445 (because sign extend)
+00094993 //                   xori x19 x18 0x000  | x19 <= 21524445
+AAA9EA13 // ORI TEST START:   ori x20 x19 0xAAA   | x20 <= FFFFFEEF
+000A6A93 //                   ori x21 x20 0x000   | x21 <= FFFFFEEF
+7FFA7913 // ANDI TEST START:  andi x18 x20 0x7FF  | x18 <= 000006EF
+FFFAF993 //                   andi x19 x21 0xFFF  | x19 <= FFFFFEEF
+000AFA13 //                   andi x20 x21 0x000  | x20 <= 00000000
+00499993 // SLLI TEST START:  slli x19 x19 0x4    | x19 <= FFFFEEF0
+02499993 //                   invalid op test     | NO CHANGE (wrong "F7" for SL)
+0049DA13 // SRLI TEST START:  srli x20 x19 0x4    | x20 <= 0FFFFEEF
+0249DA13 //                   invalid op test     | NO CHANGE (wrong "F7" for SR)
+404ADA93 // SRAI TEST START:  srai x21 x21 0x4    | x21 <= FFFFFFEE
+424ADA93 //                   invalid op test     | NO CHANGE ! (wrong "F7" for SR)
 00000013 // nop
 00000013 // nop
 00000013 // nop

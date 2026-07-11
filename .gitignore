@@ -1,4 +1,4 @@
-docs/
+docs/private/
 tb/*/__pycache__/
 tb/*/dump.vcd
 tb/*/results.xml

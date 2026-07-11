@@ -58,7 +58,7 @@ module cpu (
 	assign rs2 = instruction[24:20];
 	assign rd = instruction[11:7];
 
-	wire [2:0] alu_control;
+	wire [3:0] alu_control;
 	wire [2:0] imm_source;
 	wire mem_write, reg_write;
 	wire alu_source;
