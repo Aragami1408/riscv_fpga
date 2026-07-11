@@ -120,22 +120,22 @@ module control(
 	// -------------------- ALU DECODER --------------------
 	always_comb begin
 		case (alu_op)
-			2'b00: alu_control = 4'b0000;                                // ADD (for lw/sw)
-			2'b10: begin                                                // R-type
+			2'b00: alu_control = 4'b0000;                                                                              // ADD (for lw/sw)
+			2'b10: begin                                                                                               // R-type
 				case (func3)
-					3'b000: alu_control = 4'b0000;
-					3'b111: alu_control = 4'b0010;                       // AND
-					3'b110: alu_control = 4'b0011;                       // OR
-					3'b010: alu_control = 4'b0101;                       // SLT
-					3'b011: alu_control = 4'b0111;                       // SLTU
-					3'b100: alu_control = 4'b1000;                       // XOR
-					3'b001: alu_control = 4'b0100;                       // SLL
-					3'b101: alu_control = (func7 == 7'h20) ? 4'b1001 : 4'b0110;                       // SRL or SRA
-					default: alu_control = 4'b0111;                      // Unsupported (will output 0)
+					3'b000: alu_control = (op == 7'b0110011) ? ((func7 == 7'h20) ? 4'b0001 : 4'b0000) : (4'b0000);     // ADD OR SUB (depends on func7 for R-TYPE ONLY), otherwise ADD
+					3'b111: alu_control = 4'b0010;                                                                     // AND
+					3'b110: alu_control = 4'b0011;                                                                     // OR
+					3'b010: alu_control = 4'b0101;                                                                     // SLT
+					3'b011: alu_control = 4'b0111;                                                                     // SLTU
+					3'b100: alu_control = 4'b1000;                                                                     // XOR
+					3'b001: alu_control = 4'b0100;                                                                     // SLL
+					3'b101: alu_control = (func7 == 7'h20) ? 4'b1001 : 4'b0110;                                        // SRL or SRA
+					default: alu_control = 4'b0111;                                                                    // Unsupported (will output 0)
 				endcase
 			end
 			// BEQ
-			2'b01: alu_control = 4'b0001;                                // SUB (for brnach comparison)
+			2'b01: alu_control = 4'b0001;                                           // SUB (for brnach comparison)
 			// EVERYTHING ELSE
 			default: alu_control = 4'b1111;
 		endcase

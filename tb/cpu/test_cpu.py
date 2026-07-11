@@ -344,4 +344,48 @@ async def cpu_instr_test(dut):
     await RisingEdge(dut.clk) # same but wrong F7
     assert binary_to_hex(dut.regfile.registers[21].value) == "FFFFFFEE"
 
+    ###################
+    # SUB TEST
+    # sub x18 x21 x18     | x18 <= FFFFF8FF
+    ###################
+    print("\n\nTESTING SUB\n\n")
+    assert binary_to_hex(dut.instruction.value) == "412A8933"
+
+    await RisingEdge(dut.clk) # sub x18 x21 x18
+    assert binary_to_hex(dut.regfile.registers[18].value) == "FFFFF8FF"
+
+    ###################
+    # SLL TEST
+    # addi x7 x0 0x8      | x7  <= 00000008
+    # sll x18 x18 x7      | x18 <= FFF8FF00
+    ###################
+    print("\n\nTESTING SLL\n\n")
+    assert binary_to_hex(dut.instruction.value) == "00800393"
+
+    await RisingEdge(dut.clk) # addi x7 x0 0x8
+    await RisingEdge(dut.clk) # sll x18 x18 x7
+    assert binary_to_hex(dut.regfile.registers[18].value) == "FFF8FF00"
+
+    ###################
+    # REMAINING R-TYPE INSTRUCTIONS
+    # slt x17 x22 x23     | x17 <= 00000001 (-459008 < -4368)
+    # sltu x17 x22 x23    | x17 <= 00000001
+    # xor x17 x18 x19     | x17 <= 000711F0
+    # srl x8 x19 x7       | x8  <= 00FFFFEE
+    # sra x8 x19 x7       | x8  <= FFFFFFEE
+    ###################
+    print("\n\nTESTING REST OF R TYPE INSTRUCTIONS\n\n")
+    assert binary_to_hex(dut.instruction.value) == "013928B3"
+
+    await RisingEdge(dut.clk) # slt x17 x18 x19
+    assert binary_to_hex(dut.regfile.registers[17].value) == "00000001"
+    await RisingEdge(dut.clk) # sltu x17 x18 x19
+    assert binary_to_hex(dut.regfile.registers[17].value) == "00000001"
+    await RisingEdge(dut.clk) # xor x17 x18 x19
+    assert binary_to_hex(dut.regfile.registers[17].value) == "000711F0"
+    await RisingEdge(dut.clk) # srl x8 x19 x7
+    assert binary_to_hex(dut.regfile.registers[8].value) == "00FFFFEE"
+    await RisingEdge(dut.clk) # sra x8 x19 x7
+    assert binary_to_hex(dut.regfile.registers[8].value) == "FFFFFFEE"
+
 

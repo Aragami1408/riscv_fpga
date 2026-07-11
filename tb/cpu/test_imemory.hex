@@ -42,6 +42,14 @@ FFFAF993 //                   andi x19 x21 0xFFF  | x19 <= FFFFFEEF
 0249DA13 //                   invalid op test     | NO CHANGE (wrong "F7" for SR)
 404ADA93 // SRAI TEST START:  srai x21 x21 0x4    | x21 <= FFFFFFEE
 424ADA93 //                   invalid op test     | NO CHANGE ! (wrong "F7" for SR)
+412A8933 // SUB TEST START:   sub x18 x21 x18     | x18 <= FFFFF8FF
+00800393 // SLL TEST START:   addi x7 x0 0x8      | x7  <= 00000008
+00791933 //                   sll x18 x18 x7      | x18 <= FFF8FF00
+013928B3 // SLT TEST START:   slt x17 x18 x19     | x17 <= 00000001 (-459008 < -4368)
+013938B3 // SLTU TEST START:  sltu x17 x18 x19    | x17 <= 00000001 (x17 should be unchanged)
+013948B3 // XOR TEST START:   xor x17 x18 x19     | x17 <= 000711F0
+0079D433 // SRL TEST START:   srl x8 x19 x7       | x8  <= 00FFFFEE
+4079D433 // SRA TEST START:   sra x8 x19 x7       | x8  <= FFFFFFEE
 00000013 // nop
 00000013 // nop
 00000013 // nop
