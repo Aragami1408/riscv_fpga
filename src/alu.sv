@@ -4,7 +4,8 @@ module alu (
 	input logic [31:0] src2,         // Second operand
 
 	output logic [31:0] alu_result,  // Computation result
-	output logic zero                // 1 if alu_result == 0
+	output logic zero,               // 1 if alu_result == 0
+	output logic neg                 // 1 if alu_result < 0
 );
 
 	wire [4:0] shamt = src2[4:0];
@@ -26,4 +27,5 @@ module alu (
 	end
 
 	assign zero = alu_result == 32'b0;
+	assign neg = alu_result[31];
 endmodule

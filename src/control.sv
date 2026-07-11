@@ -4,8 +4,10 @@ module control(
 	// Controls ALU decoder
 	input logic [2:0] func3,
 	input logic [6:0] func7,
-	// Taken from ALU's zero signal to do branching stuff
+	// Extra bits from ALU for branching instructions
 	input logic alu_zero,
+	input logic alu_neg,
+
 
 	output logic [3:0] alu_control,       // Wires to ALU module
 	output logic [2:0] imm_source,        // Wires to Sign Extender module
@@ -134,8 +136,8 @@ module control(
 					default: alu_control = 4'b0111;                                                                    // Unsupported (will output 0)
 				endcase
 			end
-			// BEQ
-			2'b01: alu_control = 4'b0001;                                           // SUB (for brnach comparison)
+			// B-type
+			2'b01: alu_control = 4'b0001;                                           // SUB (for branch comparison)
 			// EVERYTHING ELSE
 			default: alu_control = 4'b1111;
 		endcase
@@ -148,6 +150,7 @@ module control(
 		// Only BEQ (func3 == 000) is supported for now
 		case (func3)
 			3'b000: assert_branch = alu_zero & branch;
+			3'b100: assert_branch = alu_neg & branch;
 			default: assert_branch = 1'b0;
 		endcase
 	end

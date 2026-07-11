@@ -1,6 +1,7 @@
 import cocotb
 from cocotb.triggers import Timer
 import random
+import ctypes
 
 # Convert binary string to hexadecimal
 def binary_to_hex(bin_str):
@@ -22,19 +23,6 @@ async def add_test(dut):
         # Await 1 ns for the infos to propagate
         await Timer(1, unit="ns")
         assert int(dut.alu_result.value) == expected
-
-@cocotb.test()
-async def default_test(dut):
-    await Timer(1, unit="ns")
-    dut.alu_control.value = 0b0111
-    src1 = random.randint(0, 0xffffffff)
-    src2 = random.randint(0, 0xffffffff)
-    dut.src1.value = src1
-    dut.src2.value = src2
-    expected = 0
-    # Await 1 ns for the infos to propagate
-    await Timer(1, unit="ns")
-    assert int(dut.alu_result.value) == expected
 
 @cocotb.test()
 async def zero_test(dut):
@@ -147,15 +135,69 @@ async def xor_test(dut):
 @cocotb.test()
 async def sll_test(dut):
     await Timer(1, unit="ns")
-    dut.alu_control.value = 0b0100
+    dut.alu_control.value = 0b0100 # sll
     for _ in range(1000):
         src1 = random.randint(0, 0xFFFFFFFF)
         src2 = random.randint(0, 0xFFFFFFFF)
         dut.src1.value = src1
-        dut.src2.value = src2
+        shamt = src2 & 0b11111
+        dut.src2.value = shamt
 
         await Timer(1, unit="ns")
-        expected = src1 << src2
+        expected = (src1 << shamt) & 0xFFFFFFFF
 
         assert int(dut.alu_result.value) == int(expected)
 
+@cocotb.test()
+async def srl_test(dut):
+    await Timer(1, unit="ns")
+    dut.alu_control.value = 0b0110 # srl
+    for _ in range(1000):
+        src1 = random.randint(0, 0xFFFFFFFF)
+        src2 = random.randint(0, 0xFFFFFFFF)
+        dut.src1.value = src1
+        shamt = src2 & 0b11111
+        dut.src2.value = shamt
+
+        await Timer(1, unit="ns")
+        expected = (src1 >> shamt) & 0xFFFFFFFF
+
+        assert int(dut.alu_result.value) == int(expected)
+
+@cocotb.test()
+async def sra_test(dut):
+    await Timer(1, unit="ns")
+    dut.alu_control.value = 0b1001 # srl
+    for _ in range(1000):
+        # UNSIGNED
+        src1 = random.randint(0, 0x7FFFFFFF)
+        src2 = random.randint(0, 0xFFFFFFFF)
+        dut.src1.value = src1
+        shamt = src2 & 0b11111
+        dut.src2.value = shamt
+
+        await Timer(1, unit="ns")
+        expected = (src1 >> shamt) & 0xFFFFFFFF
+
+        assert int(dut.alu_result.value) == int(expected)
+
+        # SIGNED
+        src1 = random.randint(0x80000000, 0xFFFFFFFF)
+        src2 = random.randint(0, 0xFFFFFFFF)
+        dut.src1.value = src1
+        shamt = src2 & 0b11111
+        dut.src2.value = shamt
+
+        await Timer(1, unit="ns")
+        expected = ((src1 - (1<<32)) >> shamt) & 0xFFFFFFFF
+
+        assert binary_to_hex(dut.alu_result.value) == hex(expected)[2:].upper()
+        assert int(dut.alu_result.value) == int(expected)
+
+@cocotb.test()
+async def neg_test(dut):
+    await Timer(1, unit="ns")
+    dut.alu_control.value = 0b0001
+    dut.src1.value = 123
+    dut.src2.value = 456
+    await Timer(1, unit="ns")

@@ -63,6 +63,7 @@ module cpu (
 	wire mem_write, reg_write;
 	wire alu_source;
 	wire alu_zero;
+	wire alu_neg;
 
 	wire [1:0] write_back_source;
 
@@ -71,6 +72,7 @@ module cpu (
 		.func3(func3),
 		.func7(func7),
 		.alu_zero(alu_zero),
+		.alu_neg(alu_neg),
 		.alu_control(alu_control),
 		.imm_source(imm_source),
 		.mem_write(mem_write),
@@ -127,7 +129,8 @@ module cpu (
 		.src2(alu_src2),
 
 		.alu_result(alu_result),
-		.zero(alu_zero)
+		.zero(alu_zero),
+		.neg(alu_neg)
 	);
 
 	// -------------------- DATA MEMORY -------------------

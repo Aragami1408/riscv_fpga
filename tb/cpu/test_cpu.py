@@ -388,4 +388,18 @@ async def cpu_instr_test(dut):
     await RisingEdge(dut.clk) # sra x8 x19 x7
     assert binary_to_hex(dut.regfile.registers[8].value) == "FFFFFFEE"
 
+    ###################
+    # BLT TEST
+    # blt x18 x8 0x8
+    # blt x8 x17 0x8
+    ###################
+    print("\n\nTESTING BLT\n\n")
+    assert binary_to_hex(dut.instruction.value) == "0088C463"
+
+    await RisingEdge(dut.clk) # blt x18 x8 0x8
+    assert binary_to_hex(dut.instruction.value) == "01144463"
+
+    await RisingEdge(dut.clk) # blt x8 x17 0x8
+    assert binary_to_hex(dut.instruction.value) == "00841463"
+
 

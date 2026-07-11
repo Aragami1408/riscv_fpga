@@ -1,5 +1,5 @@
 module memory #(
-	parameter WORDS = 64,
+	parameter WORDS = 128,
 	parameter mem_init = "" // Load data from file to memory block of this module
 ) (
 	input logic clk,
