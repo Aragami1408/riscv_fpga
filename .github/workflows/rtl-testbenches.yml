@@ -30,13 +30,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install cocotb cocotb-tools
 
-      # NOTE: assumes test_runner.py lives at <repo_root>/sim/test_runner.py
-      # and sources live at <repo_root>/src/*.sv (proj_path.parent.parent from
-      # test_runner.py's own location). Adjust `working-directory` below if
-      # your layout differs.
       - name: Run testbenches
         working-directory: tb
-        run: python test_runner.py
+        run: python3 test_runner.py
 
       - name: Upload waveform dumps (on failure)
         if: failure()
