@@ -1,11 +1,12 @@
 module alu (
-	input logic [3:0] alu_control,   // Operation selector
-	input logic [31:0] src1,         // First operand
-	input logic [31:0] src2,         // Second operand
+	input logic [3:0] alu_control,    // Operation selector
+	input logic [31:0] src1,          // First operand
+	input logic [31:0] src2,          // Second operand
 
-	output logic [31:0] alu_result,  // Computation result
-	output logic zero,               // 1 if alu_result == 0
-	output logic neg                 // 1 if alu_result < 0
+	output logic [31:0] alu_result,   // Computation result
+	output logic zero,                // 1 if alu_result == 0
+	output logic neg,                 // 1 if alu_result < 0
+	output logic last_bit             // LSB of alu_result
 );
 
 	wire [4:0] shamt = src2[4:0];
@@ -28,4 +29,5 @@ module alu (
 
 	assign zero = alu_result == 32'b0;
 	assign neg = alu_result[31];
+	assign last_bit = alu_result[0];
 endmodule

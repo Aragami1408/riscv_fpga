@@ -25,9 +25,9 @@ def generic_tb_runner(design_name):
     )
 
 if __name__ == "__main__":
-    generic_tb_runner("memory")
-    generic_tb_runner("regfile")
     generic_tb_runner("alu")
-    generic_tb_runner("signext")
     generic_tb_runner("control")
     generic_tb_runner("cpu")
+    generic_tb_runner("memory")
+    generic_tb_runner("regfile")
+    generic_tb_runner("signext")

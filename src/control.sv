@@ -7,6 +7,7 @@ module control(
 	// Extra bits from ALU for branching instructions
 	input logic alu_zero,
 	input logic alu_neg,
+	input logic alu_last_bit,
 
 
 	output logic [3:0] alu_control,       // Wires to ALU module
@@ -137,7 +138,12 @@ module control(
 				endcase
 			end
 			// B-type
-			2'b01: alu_control = 4'b0001;                                           // SUB (for branch comparison)
+			2'b01: begin
+				case (func3)
+					0'b110, 0'b111: alu_control = 4'b0111;                                                             // BLTU and BGEU
+					default: alu_control = 4'b0001;
+				endcase
+			end
 			// EVERYTHING ELSE
 			default: alu_control = 4'b1111;
 		endcase
@@ -149,8 +155,12 @@ module control(
 	always_comb begin : branch_logic_decode
 		// Only BEQ (func3 == 000) is supported for now
 		case (func3)
-			3'b000: assert_branch = alu_zero & branch;
-			3'b100: assert_branch = alu_neg & branch;
+			3'b000: assert_branch = alu_zero & branch;                   // BEQ
+			3'b001: assert_branch = !alu_zero & branch;                  // BNE
+			3'b100: assert_branch = alu_neg & branch;                    // BLT
+			3'b101: assert_branch = (alu_zero | !alu_neg) & branch;      // BGE
+			3'b110: assert_branch = alu_last_bit & branch;               // BLTU
+			3'b111: assert_branch = !alu_last_bit & branch;              // BGEU
 			default: assert_branch = 1'b0;
 		endcase
 	end

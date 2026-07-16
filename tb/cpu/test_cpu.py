@@ -401,5 +401,64 @@ async def cpu_instr_test(dut):
 
     await RisingEdge(dut.clk) # blt x8 x17 0x8
     assert binary_to_hex(dut.instruction.value) == "00841463"
+    assert binary_to_hex(dut.regfile.registers[8].value) != "0000000C" # addi x8 x0 0xC should not be executed
 
+    ###################
+    # BNE TEST
+    # bne x8 x8 0x8       | not taken
+    # bne x8 x17 0x8      | taken
+    ###################
+    print("\n\nTESTING BNE\n\n")
+    assert binary_to_hex(dut.instruction.value) == "00841463"
 
+    await RisingEdge(dut.clk) # bne x8 x8 0x8
+    assert binary_to_hex(dut.instruction.value) == "01141463"
+
+    await RisingEdge(dut.clk) # bne x8 x17 0x8
+    assert binary_to_hex(dut.instruction.value) == "01145463"
+    assert binary_to_hex(dut.regfile.registers[8].value) != "0000000C"
+
+    ###################
+    # BGE TEST
+    # bge x8 x17 0x8      | not taken
+    # bge x8 x8 0x8       | taken
+    ###################
+    print("\n\nTESTING BGE\n\n")
+    assert binary_to_hex(dut.instruction.value) == "01145463"
+
+    await RisingEdge(dut.clk) # bge x8 x17 0x8
+    assert binary_to_hex(dut.instruction.value) == "0088D463"
+
+    await RisingEdge(dut.clk) # bge x8 x8 0x8
+    assert binary_to_hex(dut.instruction.value) == "01146463"
+    assert binary_to_hex(dut.regfile.registers[8].value) != "0000000C"
+
+    ###################
+    # BLTU TEST
+    # bltu x8 x17 0x8     | not taken
+    # bltu x17 x8 0x8     | taken
+    ###################
+    print("\n\nTESTING BLTU\n\n")
+    assert binary_to_hex(dut.instruction.value) == "01146463"
+
+    await RisingEdge(dut.clk) # bltu x8 x18 0x8
+    assert binary_to_hex(dut.instruction.value) == "0088E463"
+
+    await RisingEdge(dut.clk) # bltu x18 x8 0x8
+    assert binary_to_hex(dut.instruction.value) == "0088F463"
+    assert binary_to_hex(dut.regfile.registers[8].value) != "0000000C"
+
+    ###################
+    # BGEU TEST
+    # bgeu x17 x8 0x8     | not taken
+    # bgeu x8 x17 0x8     | taken
+    ###################
+    print("\n\nTESTING BGEU\n\n")
+    assert binary_to_hex(dut.instruction.value) == "0088F463"
+
+    await RisingEdge(dut.clk) # bgeu x17 x8 0x8
+    assert binary_to_hex(dut.instruction.value) == "01147463"
+
+    await RisingEdge(dut.clk) # bgeu x8 x17 0x8
+    assert binary_to_hex(dut.instruction.value) == "00000397"
+    assert binary_to_hex(dut.regfile.registers[8].value) != "0000000C"
