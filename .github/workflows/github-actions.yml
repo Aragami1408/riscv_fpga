@@ -1,18 +1,23 @@
-name: CI
+name: RTL Testbenches (cocotb)
 
 on:
   push:
-    branches:
-      - '**'       # Run on all branches
-  pull_request:    # Optional: also run on PRs
+  pull_request:
 
 jobs:
-  test:
+  cocotb-tests:
     runs-on: ubuntu-latest
+    env:
+      SIM: verilator
 
     steps:
-      - name: Checkout repository
+      - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
       - name: Install Verilator
         run: |
@@ -20,18 +25,33 @@ jobs:
           sudo apt-get install -y verilator
           verilator --version
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install Python dependencies
+      - name: Install Python test dependencies
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install cocotb cocotb-tools
 
+      # NOTE: assumes test_runner.py lives at <repo_root>/sim/test_runner.py
+      # and sources live at <repo_root>/src/*.sv (proj_path.parent.parent from
+      # test_runner.py's own location). Adjust `working-directory` below if
+      # your layout differs.
+      - name: Run testbenches
+        working-directory: tb
+        run: python test_runner.py
 
-      - name: Run all tests
-        run: |
-          cd tb
-          python test_runner.py
+      - name: Upload waveform dumps (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cocotb-vcd-dumps
+          path: tb/**/dump.vcd
+          if-no-files-found: ignore
+
+      - name: Upload cocotb result XML (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cocotb-results
+          path: |
+            tb/**/results.xml
+            tb/**/sim_build/**
+          if-no-files-found: ignore
