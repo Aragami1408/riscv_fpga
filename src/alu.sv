@@ -1,3 +1,4 @@
+`default_nettype none
 module alu (
 	input logic [3:0] alu_control,    // Operation selector
 	input logic [31:0] src1,          // First operand

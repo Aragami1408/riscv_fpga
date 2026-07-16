@@ -1,3 +1,4 @@
+`default_nettype none
 module signext (
 	input logic [24:0] raw_src,
 	input logic [2:0] imm_source, // Immediate format selector

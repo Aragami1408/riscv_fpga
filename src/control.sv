@@ -1,3 +1,4 @@
+`default_nettype none
 module control(
 	// Controls main decoder
 	input logic [6:0] op,

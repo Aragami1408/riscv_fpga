@@ -1,3 +1,4 @@
+`default_nettype none
 module cpu (
 	input logic clk,
 	input logic rst_n

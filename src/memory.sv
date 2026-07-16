@@ -1,3 +1,4 @@
+`default_nettype none
 module memory #(
 	parameter WORDS = 128,
 	parameter mem_init = "" // Load data from file to memory block of this module
