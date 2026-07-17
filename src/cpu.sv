@@ -8,7 +8,8 @@ module cpu (
 	reg [31:0] pc;
 	logic [31:0] pc_next, pc_plus_second_add, pc_plus_four;
 
-	logic pc_source, second_add_source;
+	logic pc_source;
+	wire [1:0] second_add_source;
 
 	assign pc_plus_four = pc + 32'd4;
 
@@ -17,7 +18,12 @@ module cpu (
 	end
 
 	always_comb begin : second_add_select
-		pc_plus_second_add = (second_add_source) ? immediate : (pc + immediate);
+		case (second_add_source)
+			2'b00: pc_plus_second_add = pc + immediate;
+			2'b01: pc_plus_second_add = immediate;
+			2'b10: pc_plus_second_add = read_reg1 + immediate;
+			default: pc_plus_second_add = 0;
+		endcase
 	end
 
 	always @(posedge clk) begin

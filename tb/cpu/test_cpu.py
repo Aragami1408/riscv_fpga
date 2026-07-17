@@ -462,3 +462,27 @@ async def cpu_instr_test(dut):
     await RisingEdge(dut.clk) # bgeu x8 x17 0x8
     assert binary_to_hex(dut.instruction.value) == "00000397"
     assert binary_to_hex(dut.regfile.registers[8].value) != "0000000C"
+
+    ###################
+    # JALR TEST
+    # auipc x7 0x0        | x7 <= 00000110                PC = 0x10C
+    # addi x7 x7 0x10     | x7 <= 00000120                PC = 0x110
+    # jalr x1  -4(x7)     | x1 <= 00000118, go @PC 0x11C  PC = 0x114
+    # addi x8 x0 0xC      | NEVER EXECUTED (check value)  PC = 0x118
+    ###################
+    print("\n\nTESTING JALR\n\n")
+
+    assert binary_to_hex(dut.instruction.value) == "00000397"
+    assert binary_to_hex(dut.pc.value) == "0000010C"
+
+    await RisingEdge(dut.clk) # auipc x7 0x0
+    await RisingEdge(dut.clk) # addi x7 x7 0x10
+    assert binary_to_hex(dut.regfile.registers[7].value) == "00000120"
+
+    await RisingEdge(dut.clk) # jalr x1 -4(x7)
+    assert binary_to_hex(dut.regfile.registers[1].value) == "00000118"
+    assert binary_to_hex(dut.regfile.registers[8].value) != "0000000C"
+    assert binary_to_hex(dut.pc.value) == "0000011C"
+
+
+

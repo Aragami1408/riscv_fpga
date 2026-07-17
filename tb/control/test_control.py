@@ -169,6 +169,24 @@ async def jal_control_test(dut):
     assert dut.write_back_source.value == "10"
 
 @cocotb.test()
+async def jalr_control_test(dut):
+    await set_unknown(dut)
+    # TEST CONTROL SIGNALS FOR JALR
+    await Timer(10, unit="ns")
+    dut.op.value = 0b1100111
+    await Timer(1, unit="ns")
+
+    assert dut.imm_source.value == "000"
+    assert dut.mem_write.value == "0"
+    assert dut.reg_write.value == "1"
+    assert dut.branch.value == "0"
+    assert dut.jump.value == "1"
+    assert dut.pc_source.value == "1"
+    assert dut.write_back_source.value == "10"
+    assert dut.second_add_source.value == "10"
+
+
+@cocotb.test()
 async def addi_control_test(dut):
     await set_unknown(dut)
     # TEST CONTROL SIGNALS FOR ADDI
@@ -199,7 +217,7 @@ async def auipc_control_test(dut):
     assert dut.write_back_source.value == "11"
     assert dut.branch.value == "0"
     assert dut.jump.value == "0"
-    assert dut.second_add_source.value == "0"
+    assert dut.second_add_source.value == "00"
 
 @cocotb.test()
 async def slti_control_test(dut):

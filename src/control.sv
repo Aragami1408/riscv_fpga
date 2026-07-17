@@ -18,7 +18,7 @@ module control(
 	output logic alu_source,              // 0 -> register, 1 -> immediate
 	output logic [1:0] write_back_source, // 00 -> from ALU, 01 -> from data memory, 10 -> from pc+4, 11 -> ???
 	output logic pc_source,               // 0 = PC+4, 1 = branch/jump target
-	output logic second_add_source
+	output logic [1:0] second_add_source
 );
 
 	// -------------------- MAIN DECODER --------------------
@@ -35,7 +35,7 @@ module control(
 		write_back_source = 2'b00;
 		branch           = 1'b0;
 		jump             = 1'b0;
-		second_add_source = 0;
+		second_add_source = 2'b00;
 		case (op)
 			// I-type (lw)
 			7'b0000011: begin
@@ -92,6 +92,17 @@ module control(
 				imm_source = 3'b011;
 				mem_write = 1'b0;
 				write_back_source = 2'b10;
+				second_add_source = 2'b00;
+				branch = 1'b0;
+				jump = 1'b1;
+			end
+			// JALR
+			7'b1100111: begin
+				reg_write = 1'b1;
+				imm_source = 3'b000;
+				mem_write = 1'b0;
+				write_back_source = 2'b10;
+				second_add_source = 2'b10;
 				branch = 1'b0;
 				jump = 1'b1;
 			end
@@ -103,7 +114,7 @@ module control(
 				write_back_source = 2'b11;
 				branch = 1'b0;
 				jump = 1'b0;
-				second_add_source = op[5];
+				second_add_source = {1'b0, op[5]};
 			end
 			// EVERYTHING ELSE
 			default: begin
