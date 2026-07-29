@@ -143,6 +143,19 @@ module cpu (
 		.last_bit(alu_last_bit)
 	);
 
+	// -------------------- LOAD/STORE DECODER-------------------
+	
+	wire [3:0] mem_byte_enable;
+	wire [31:0] mem_write_data;
+
+	load_store_decoder ls_decode(
+		.alu_result_address(alu_result),
+		.reg_read(read_reg2),
+		.f3(f3),
+		.byte_enable(mem_byte_enable),
+		.data(mem_write_data)
+	);
+
 	// -------------------- DATA MEMORY -------------------
 	wire [31:0] mem_read;
 
@@ -150,10 +163,12 @@ module cpu (
 		.mem_init("./test_dmemory.hex")
 	) data_memory (
 		.clk(clk),
-		.address(alu_result),
-		.write_data(read_reg2),
+		.address({alu_result[31:2], 2'b00}),
+		.write_data(mem_write_data),
 		.write_enable(mem_write),
+		.byte_enable(mem_byte_enable),
 		.rst_n(1'b1),
+
 		.read_data(mem_read)
 	);
 
